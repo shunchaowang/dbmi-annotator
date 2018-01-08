@@ -13,33 +13,9 @@ function claimEditorLoad() {
     $("#mp-data-form-participants").hide();
     $("#mp-data-form-dose1").hide();
     $("#mp-data-form-dose2").hide();
-    $("#mp-data-form-phenotype").hide();
-    $("#mp-data-form-auc").hide();
-    $("#mp-data-form-cmax").hide();
-    $("#mp-data-form-clearance").hide();
-    $("#mp-data-form-halflife").hide();
-    $("#mp-data-form-studytype").hide();
-    $("#mp-data-form-reviewer").hide();
-    $("#mp-data-form-q1").hide();
-    $("#mp-data-form-q2").hide();
-    $("#mp-data-form-q3").hide();
-    $("#mp-data-form-q4").hide();
-    $("#mp-data-form-q5").hide();
-    $("#mp-data-form-q6").hide();
-    $("#mp-data-form-q7").hide();
-    $("#mp-data-form-q8").hide();
-    $("#mp-data-form-q9").hide();
-    $("#mp-data-form-q10").hide();
-    $("#mp-data-form-cellSystem").hide();
-    $("#mp-data-form-rateWith").hide();
-    $("#mp-data-form-rateWithout").hide();
-    $("#mp-data-form-cl").hide();
-    $("#mp-data-form-vmax").hide();
-    $("#mp-data-form-km").hide();
-    $("#mp-data-form-ki").hide();
-    $("#mp-data-form-inhibition").hide();
-    $("#mp-data-form-kinact").hide();
-    $("#mp-data-form-ic50").hide();
+    $("#mp-data-form-radiotherapy").hide();
+    $("#mp-data-form-toxicity").hide();
+    $("#mp-data-form-deathwithdrawal").hide();
 }
 
 function reviewerChange() {
@@ -310,7 +286,7 @@ function addDataCellByEditor(field, dataNum, isNewData) {
         if (field == "evRelationship" || field =="studytype") {
             $("#mp-data-nav").hide();
             $(".annotator-save").hide();
-        } else if (field == "auc" || field == "cmax" || field == "clearance" || field == "halflife") { // when field is checkbox
+        } else if (field == "radiotherapy" || field == "toxicity" || field == "deathwithdrawal") { // when field is checkbox
             $("#mp-data-nav").show();
             $("#mp-dips-nav").hide();
             $(".annotator-save").show(); 
@@ -366,8 +342,10 @@ function addDataCellByEditor(field, dataNum, isNewData) {
                     // add data if not avaliable  
                     if (annotation.argues.supportsBy.length == 0 || isNewData){ 
 
-                        var data = {type : "mp:data", evRelationship: "", auc : {}, cmax : {}, clearance : {}, halflife : {}, reviewer: {}, dips: {}, cellSystem: {}, metaboliteRateWith: {}, metaboliteRateWithout: {}, measurement: {}, supportsBy : {type : "mp:method", supportsBy : {type : "mp:material", participants : {}, drug1Dose : {}, drug2Dose : {}, phenotype: {}}}, grouprandom: "", parallelgroup: ""};
-                        annotation.argues.supportsBy.push(data); 
+                        //var data = {type : "mp:data", evRelationship: "", auc : {}, cmax : {}, clearance : {}, halflife : {}, reviewer: {}, dips: {}, cellSystem: {}, metaboliteRateWith: {}, metaboliteRateWithout: {}, measurement: {}, supportsBy : {type : "mp:method", supportsBy : {type : "mp:material", participants : {}, drug1Dose : {}, drug2Dose : {}, phenotype: {}}}, grouprandom: "", parallelgroup: ""};
+                        //annotation.argues.supportsBy.push(data); 
+                        var data = {type : "mp:data", toxicity : {}, deathwithdrawal : {}, radiotherapy : {},  supportsBy : {type : "mp:method", supportsBy : {type : "mp:material", participants : {}, drug1Dose : {}, drug2Dose: {}}}};
+                        annotation.argues.supportsBy.push(data);
                     } 
                     
                     // call AnnotatorJs editor for update    
@@ -394,7 +372,7 @@ function editDataCellByEditor(field, dataNum) {
     if (field == "evRelationship" || field =="studytype") {
         $("#mp-data-nav").hide();
         $(".annotator-save").hide();
-    } else if (field == "auc" || field == "cmax" || field == "clearance" || field == "halflife") { // when field is checkbox
+    } else if (field == "radiotherapy" || field == "toxicity" || field == "deathwithdrawal") { // when field is checkbox
         $("#mp-data-nav").show();
         $("#mp-dips-nav").hide();
         $(".annotator-save").show(); 
@@ -456,8 +434,10 @@ function editDataCellByEditor(field, dataNum) {
                 data = annotation.argues.supportsBy[dataNum];
                 material = data.supportsBy.supportsBy;
                 
-                if ((field == "participants" && material.participants.value != null) || (field == "dose1" && material.drug1Dose.value != null) || (field == "dose2" && material.drug2Dose.value != null) || ((field == "auc" || field == "cmax" || field == "clearance" || field == "halflife") && (data[field].value != null)) || 
-                    field == "rateWithout" || field == "rateWith" || field == "cellSystem" || field == "cl" || field == "vmax" || field == "km" || field == "ki" || field == "inhibition" || field == "kinact" || field == "ic50")
+                //if ((field == "participants" && material.participants.value != null) || (field == "dose1" && material.drug1Dose.value != null) || (field == "dose2" && material.drug2Dose.value != null) || ((field == "auc" || field == "cmax" || field == "clearance" || field == "halflife") && (data[field].value != null)) || 
+                    //field == "rateWithout" || field == "rateWith" || field == "cellSystem" || field == "cl" || field == "vmax" || field == "km" || field == "ki" || field == "inhibition" || field == "kinact" || field == "ic50")
+                    //$("#annotator-delete").show();
+                if ((field == "participants" && material.participants.value != null) || (field == "dose1" && material.drug1Dose.value != null) || (field == "dose2" && material.drug2Dose.value != null) || ((field == "radiotherapy" || field == "toxicity" || field == "deathwithdrawal") && (data[field].value != null)))
                     $("#annotator-delete").show();
                 
                 // call AnnotatorJs editor for update    
@@ -526,8 +506,9 @@ function switchDataForm(targetField, isNotNeedValid) {
 function switchDataFormHelper(targetField) {
 
     // field actual div id mapping
-    fieldM = {"reviewer":"reviewer", "evRelationship":"evRelationship", "participants":"participants", "dose1":"drug1Dose", "dose2":"drug2Dose", "phenotype":"phenotype", "auc":"auc", "cmax":"cmax", "clearance":"clearance", "halflife":"halflife", "studytype":"studytype",
-    "q1":"q1", "q2":"q2", "q3":"q3", "q4":"q4", "q5":"q5", "q6":"q6", "q7":"q7", "q8":"q8", "q9":"q9", "q10":"q10"};
+    //fieldM = {"reviewer":"reviewer", "evRelationship":"evRelationship", "participants":"participants", "dose1":"drug1Dose", "dose2":"drug2Dose", "phenotype":"phenotype", "auc":"auc", "cmax":"cmax", "clearance":"clearance", "halflife":"halflife", "studytype":"studytype",
+    //"q1":"q1", "q2":"q2", "q3":"q3", "q4":"q4", "q5":"q5", "q6":"q6", "q7":"q7", "q8":"q8", "q9":"q9", "q10":"q10"};
+    fieldM = {"participants":"participants", "dose1":"drug1Dose", "dose2":"drug2Dose", "radiotherapy":"radiotherapy", "toxicity":"toxicity", "deathwithdrawal":"deathwithdrawal"};
 
     var showDeleteBtn = false;
 
@@ -539,7 +520,7 @@ function switchDataFormHelper(targetField) {
 
             if (field == "evRelationship" || field =="studytype") { // when field is radio button
                 fieldVal = $("input[name="+field+"]:checked").val();
-            } else if (field == "auc" || field == "cmax" || field == "clearance" || field == "halflife") { // when field is checkbox
+            } else if (field == "radiotherapy" || field == "toxicity" || field == "deathwithdrawal") { // when field is checkbox
                 $("#mp-data-nav").show();
                 $("#mp-dips-nav").hide();
                 if ($('#' + field + '-unchanged-checkbox').is(':checked')) 

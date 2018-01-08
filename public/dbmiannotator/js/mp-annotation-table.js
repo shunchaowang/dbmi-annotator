@@ -197,7 +197,8 @@ function addNewDataRow() {
         totalDataNum += 1;
         dataNumLast = totalDataNum - 1;
        
-        $('#mp-data-tb tr:last').after("<tr style='height:20px;'><td onclick='addDataCellByEditor(\"evRelationship\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"participants\"," + dataNumLast + ", true);'> </td><td onclick='addDataCellByEditor(\"dose1\"," + dataNumLast + ", true);'> </td><td onclick='addDataCellByEditor(\"dose2\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"auc\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"cmax\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"clearance\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"halflife\"," + dataNumLast + ", true);'><td onclick='addDataCellByEditor(\"studytype\"," + dataNumLast + ", true);'></td></tr>");
+        //$('#mp-data-tb tr:last').after("<tr style='height:20px;'><td onclick='addDataCellByEditor(\"evRelationship\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"participants\"," + dataNumLast + ", true);'> </td><td onclick='addDataCellByEditor(\"dose1\"," + dataNumLast + ", true);'> </td><td onclick='addDataCellByEditor(\"dose2\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"auc\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"cmax\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"clearance\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"halflife\"," + dataNumLast + ", true);'><td onclick='addDataCellByEditor(\"studytype\"," + dataNumLast + ", true);'></td></tr>");
+        $('#mp-data-tb tr:last').after("<tr style='height:20px;'><td onclick='addDataCellByEditor(\"participants\"," + dataNumLast + ", true);'> </td><td onclick='addDataCellByEditor(\"dose1\"," + dataNumLast + ", true);'> </td><td onclick='addDataCellByEditor(\"dose2\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"radiotherapy\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"toxicity\"," + dataNumLast + ", true);'></td><td onclick='addDataCellByEditor(\"deathwithdrawal\"," + dataNumLast + ", true);'></td></tr>");
     }
 }
 
@@ -542,9 +543,10 @@ function createDataTable(annotation){
         dataTable = "<table style='color:red;'";
     }
     if (drugname2 == "") {
-        dataTable += " id='mp-data-tb'><tr><td>Ev Relationship</td><td>No. of Participants</td><td><div>" + drugname1 + " Dose</div></td><td>Phenotype</td><td>AUC ratio</td><td>Cmax ratio</td><td>Clearance ratio</td><td>Half-life ratio</td><td>Evidence Type</td></tr>";
+        //dataTable += " id='mp-data-tb'><tr><td>Ev Relationship</td><td>No. of Participants</td><td><div>" + drugname1 + " Dose</div></td><td>Phenotype</td><td>AUC ratio</td><td>Cmax ratio</td><td>Clearance ratio</td><td>Half-life ratio</td><td>Evidence Type</td></tr>";
+        dataTable += " id='mp-data-tb'><tr><td>No. of Participants</td><td><div>" + drugname1 + " Dose</div></td><td>" + drugname2 + " Dose</td><td>Radiotherapy</td><td>Toxicity</td><td>Death/Withdrawal</td></tr>";
     } else {
-        dataTable += " id='mp-data-tb'><tr><td>Ev Relationship</td><td>No. of Participants</td><td><div>" + drugname1 + " Dose</div></td><td>" + drugname2 + " Dose</td><td>AUC ratio</td><td>Cmax ratio</td><td>Clearance ratio</td><td>Half-life ratio</td><td>Evidence Type</td></tr>";
+        dataTable += " id='mp-data-tb'><tr><td>No. of Participants</td><td><div>" + drugname1 + " Dose</div></td><td>" + drugname2 + " Dose</td><td>Radiotherapy</td><td>Toxicity</td><td>Death/Withdrawal</td></tr>";
     }
     
     annotationId = annotation.id;
@@ -557,15 +559,15 @@ function createDataTable(annotation){
             material = data.supportsBy.supportsBy;
             row = "<tr style='height:20px;'>";
             // evidence relationship
-            if (data.evRelationship != null) {
+            /*if (data.evRelationship != null) {
                 var tempRel = data.evRelationship == "refutes" ? "challenges" : "supports";
                 row += "<td onclick='editDataCellByEditor(\"evRelationship\",\""+dataNum+"\");'>" + tempRel + "</td>";      
             } else {
                 row += "<td onclick='addDataCellByEditor(\"evRelationship\",\""+dataNum+"\");'></td>";
-            }
+            }*/
 
             // show mp material
-            if (material.participants.value != null)
+            if (material.participants != null)
                 row += "<td onclick='editDataCellByEditor(\"participants\",\""+dataNum+"\");'>" + material.participants.value + "</td>";      
             else 
                 row += "<td onclick='addDataCellByEditor(\"participants\",\""+dataNum+"\");'></td>";
@@ -594,7 +596,7 @@ function createDataTable(annotation){
                 $('nav-phenotype-btn').hide();
             }
             // show mp data
-            if (data.auc.value != null)
+            /*if (data.auc.value != null)
                 row += "<td onclick='editDataCellByEditor(\"auc\",\""+dataNum+"\");'>" + data.auc.value + "</td>";
             else 
                 row += "<td onclick='addDataCellByEditor(\"auc\",\""+dataNum+"\");'></td>"; 
@@ -617,16 +619,33 @@ function createDataTable(annotation){
             if (data.grouprandom != null || data.parallelgroup != null)
                 row += "<td onclick='editDataCellByEditor(\"studytype\",\""+dataNum+"\");'>checked</td>";
             else 
-                row += "<td onclick='addDataCellByEditor(\"studytype\",\""+dataNum+"\");'></td>"; 
+                row += "<td onclick='addDataCellByEditor(\"studytype\",\""+dataNum+"\");'></td>"; */
+
+            if (data.radiotherapy.r != null)
+                row += "<td onclick='editDataCellByEditor(\"radiotherapy\",\""+dataNum+"\");'>" + data.radiotherapy.r + "</td>";
+            else 
+                row += "<td onclick='addDataCellByEditor(\"radiotherapy\",\""+dataNum+"\");'></td>"; 
+
+            if (data.toxicity != null)
+                row += "<td onclick='editDataCellByEditor(\"toxicity\",\""+dataNum+"\");'>" + data.toxicity.criteria + "</td>";
+            else 
+                row += "<td onclick='addDataCellByEditor(\"toxicity\",\""+dataNum+"\");'></td>"; 
+
+            if (data.deathwithdrawal != null)
+                row += "<td onclick='editDataCellByEditor(\"deathwithdrawal\",\""+dataNum+"\");'>" + data.deathwithdrawal.deathFrequency + "</td>";
+            else 
+                row += "<td onclick='addDataCellByEditor(\"deathwithdrawal\",\""+dataNum+"\");'></td>";
 
             row += "</tr>";
             dataTable += row;
         }
     } else { // add empty row
         if (drugname2 == "") {
-            dataTable += "<tr style='height:20px;'><td onclick='addDataCellByEditor(\"evRelationship\",0);'></td><td onclick='addDataCellByEditor(\"participants\",0);'></td><td onclick='addDataCellByEditor(\"dose1\",0);'> </td><td onclick='addDataCellByEditor(\"phenotype\",0);'></td><td onclick='addDataCellByEditor(\"auc\",0);'></td><td onclick='addDataCellByEditor(\"cmax\",0);'></td><td onclick='addDataCellByEditor(\"clearance\",0);'></td><td onclick='addDataCellByEditor(\"halflife\",0);'></td><td onclick='addDataCellByEditor(\"studytype\",0);'></td>";
+            //dataTable += "<tr style='height:20px;'><td onclick='addDataCellByEditor(\"evRelationship\",0);'></td><td onclick='addDataCellByEditor(\"participants\",0);'></td><td onclick='addDataCellByEditor(\"dose1\",0);'> </td><td onclick='addDataCellByEditor(\"phenotype\",0);'></td><td onclick='addDataCellByEditor(\"auc\",0);'></td><td onclick='addDataCellByEditor(\"cmax\",0);'></td><td onclick='addDataCellByEditor(\"clearance\",0);'></td><td onclick='addDataCellByEditor(\"halflife\",0);'></td><td onclick='addDataCellByEditor(\"studytype\",0);'></td>";
+            dataTable += "<tr style='height:20px;'><td onclick='addDataCellByEditor(\"participants\",0);'></td><td onclick='addDataCellByEditor(\"dose1\",0);'> </td><td onclick='addDataCellByEditor(\"dose2\",0);'></td><td onclick='addDataCellByEditor(\"radiotherapy\",0);'></td><td onclick='addDataCellByEditor(\"toxicity\",0);'></td><td onclick='addDataCellByEditor(\"deathwithdrawal\",0);'></td>";
         } else {
-            dataTable += "<tr style='height:20px;'><td onclick='addDataCellByEditor(\"evRelationship\",0);'></td><td onclick='addDataCellByEditor(\"participants\",0);'></td><td onclick='addDataCellByEditor(\"dose1\",0);'> </td><td onclick='addDataCellByEditor(\"dose2\",0);'></td><td onclick='addDataCellByEditor(\"auc\",0);'></td><td onclick='addDataCellByEditor(\"cmax\",0);'></td><td onclick='addDataCellByEditor(\"clearance\",0);'></td><td onclick='addDataCellByEditor(\"halflife\",0);'></td><td onclick='addDataCellByEditor(\"studytype\",0);'></td>";
+            //dataTable += "<tr style='height:20px;'><td onclick='addDataCellByEditor(\"evRelationship\",0);'></td><td onclick='addDataCellByEditor(\"participants\",0);'></td><td onclick='addDataCellByEditor(\"dose1\",0);'> </td><td onclick='addDataCellByEditor(\"dose2\",0);'></td><td onclick='addDataCellByEditor(\"auc\",0);'></td><td onclick='addDataCellByEditor(\"cmax\",0);'></td><td onclick='addDataCellByEditor(\"clearance\",0);'></td><td onclick='addDataCellByEditor(\"halflife\",0);'></td><td onclick='addDataCellByEditor(\"studytype\",0);'></td>";
+            dataTable += "<tr style='height:20px;'><td onclick='addDataCellByEditor(\"participants\",0);'></td><td onclick='addDataCellByEditor(\"dose1\",0);'> </td><td onclick='addDataCellByEditor(\"dose2\",0);'></td><td onclick='addDataCellByEditor(\"radiotherapy\",0);'></td><td onclick='addDataCellByEditor(\"toxicity\",0);'></td><td onclick='addDataCellByEditor(\"deathwithdrawal\",0);'></td>";
     }   }
     dataTable += "</table>";
     return dataTable;
