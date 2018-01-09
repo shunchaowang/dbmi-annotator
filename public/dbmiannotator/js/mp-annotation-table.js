@@ -567,7 +567,7 @@ function createDataTable(annotation){
             }*/
 
             // show mp material
-            if (material.participants != null)
+            if (material.participants.value != null)
                 row += "<td onclick='editDataCellByEditor(\"participants\",\""+dataNum+"\");'>" + material.participants.value + "</td>";      
             else 
                 row += "<td onclick='addDataCellByEditor(\"participants\",\""+dataNum+"\");'></td>";
@@ -626,12 +626,12 @@ function createDataTable(annotation){
             else 
                 row += "<td onclick='addDataCellByEditor(\"radiotherapy\",\""+dataNum+"\");'></td>"; 
 
-            if (data.toxicity != null)
-                row += "<td onclick='editDataCellByEditor(\"toxicity\",\""+dataNum+"\");'>" + data.toxicity.criteria + "</td>";
+            if (data.toxicity.toxicityCriteria != null)
+                row += "<td onclick='editDataCellByEditor(\"toxicity\",\""+dataNum+"\");'>" + data.toxicity.toxicityCriteria + "</td>";
             else 
                 row += "<td onclick='addDataCellByEditor(\"toxicity\",\""+dataNum+"\");'></td>"; 
 
-            if (data.deathwithdrawal != null)
+            if (data.deathwithdrawal.deathFrequency != null)
                 row += "<td onclick='editDataCellByEditor(\"deathwithdrawal\",\""+dataNum+"\");'>" + data.deathwithdrawal.deathFrequency + "</td>";
             else 
                 row += "<td onclick='addDataCellByEditor(\"deathwithdrawal\",\""+dataNum+"\");'></td>";
