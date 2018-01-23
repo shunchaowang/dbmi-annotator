@@ -437,7 +437,7 @@ function editDataCellByEditor(field, dataNum) {
                 //if ((field == "participants" && material.participants.value != null) || (field == "dose1" && material.drug1Dose.value != null) || (field == "dose2" && material.drug2Dose.value != null) || ((field == "auc" || field == "cmax" || field == "clearance" || field == "halflife") && (data[field].value != null)) || 
                     //field == "rateWithout" || field == "rateWith" || field == "cellSystem" || field == "cl" || field == "vmax" || field == "km" || field == "ki" || field == "inhibition" || field == "kinact" || field == "ic50")
                     //$("#annotator-delete").show();
-                if ((field == "participants" && material.participants.total != null) || (field == "dose1" && material.drug1Dose.value != null) || (field == "dose2" && material.drug2Dose.value != null) || ((field == "radiotherapy" || field == "toxicity" || field == "deathwithdrawal") && (data[field].value != null)))
+                if ((field == "participants" && material.participants.value != null) || (field == "dose1" && material.drug1Dose.value != null) || (field == "dose2" && material.drug2Dose.value != null) || ((field == "radiotherapy" || field == "toxicity" || field == "deathwithdrawal") && (data[field].value != null)))
                     $("#annotator-delete").show();
                 
                 // call AnnotatorJs editor for update    
