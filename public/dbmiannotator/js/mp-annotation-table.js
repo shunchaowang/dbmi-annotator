@@ -3,8 +3,6 @@
 // @output: update annotation table and mpadder
 
 function updateAnnTable(sourceURL){
-    console.log("update annotation table");
-    console.log("annotationType: " + annotationType);
     // request all mp annotaitons for current document and user
 
     $.ajax({url: config.protocal + "://" + config.apache2.host + ":" + config.apache2.port + "/annotatorstore/search",
@@ -39,9 +37,7 @@ function updateAnnTable(sourceURL){
 // initiate annotation when user click annotation import button
 // @input: list of annotations have been selected for import
 function initAnnTable(selectedAnnsL) {
-    console.log("init ann table");
 
-    //console.log(selectedAnnsL);
     /* PDF version
     if (selectedAnnsL == null) return null;
     */
@@ -55,15 +51,111 @@ function initAnnTable(selectedAnnsL) {
     updateClaimAndData(selectedAnnsL, currAnnotationId);
 }
 
+function updateClaimAndData(annotations, annotationId) {
 
+    // claim menu for mpadder
+    claimMenu = "";
+    // data table for selected claim
+    dataTable = "";
+    // loop all MP annotation to create Claim listbox and menu for adder
+    claimListbox = "<select id='mp-editor-claim-list' onChange='changeClaimInAnnoTable();'>";
+    // create claim listbox in claim creating dialog
+    dialogClaimListbox = "<select id='dialog-claim-options' onChange='changeClaimInDialog();'>";
+    method_entered = "";
+
+    //only when this user has annotations, these content will be generated
+    if (annotations != undefined) {
+        // add claim label as options in annotation list and mpadder menu
+        for (i = 0; i < annotations.length; i++) {
+
+            annotation = annotations[i];
+            //if (annotation.annotationType != "MP") continue;
+
+            var claimIsSelected = "";
+            if (annotationId == annotation.id) {
+                //set global variable
+                currAnnotation = annotation;
+                claimIsSelected = 'selected="selected"';
+                method_entered = annotation.argues.method;
+                // cache total number of data & material for current claim
+                totalDataNum = annotation.argues.supportsBy.length;
+                //if it is not rejected, show the data table
+
+                if (currAnnotation.argues.method == "DDI clinical trial" || currAnnotation.argues.method == "Phenotype clinical study" || currAnnotation.argues.method == "Case Report" || currAnnotation.argues.method == "Experiment" || currAnnotation.argues.method == "Statement") {
+                    dataTable = createDataTable(annotation);
+                }
+
+                totalDataNum = annotation.argues.supportsBy.length;
+            }
+
+            claim = annotation.argues;
+            option = "<option value='" + annotation.id + "' "+claimIsSelected+">" + claim.label + "</option>";
+            claimListbox += option;
+            dialogClaimListbox += option;
+
+            claimMenu += "<li onclick='claimSelectedInMenu(\""+annotation.id+"\");' ><a href='#'>" + claim.label + "</a></li>";
+        }
+        claimListbox += "</select>";
+        dialogClaimListbox += "</select>";
+    }
+
+    // Claim
+    claimPanel = "<table id='mp-claim-method-tb'>";
+    claimPanel += "<tr><td>" + claimListbox + "</td></tr>";
+
+    // Method listbox - user entered method
+    claimPanel += "<tr><td>Method: " + method_entered + "</td></tr>"
+
+    claimPanel += "<tr><td><button id='edit-claim-btn' type='button' onclick='editClaim()' style='float:left; font-size:12px'>Edit Claim</button><button id='view-claim-btn' type='button' onclick='viewClaim()' style='float: right; font-size:12px'>View Claim</button></td></tr></table>";
+
+    // When method is statement, disable adding rows
+    var dataPanel = "";
+
+    if (currAnnotation != undefined && currAnnotation.argues != undefined) {
+        // Data & Material - add new data button
+
+        var isReject = (currAnnotation.rejected == undefined || currAnnotation.rejected == null)?"This evidence is not rejected as supporting or refuting the claim":"This evidence is rejected as supporting or refuting the claim";
+        if (currAnnotation.argues.method == "DDI clinical trial" || currAnnotation.argues.method == "Phenotype clinical study" || currAnnotation.argues.method == "Case Report" || currAnnotation.argues.method == "Experiment" || currAnnotation.argues.method == "Statement") {
+            dataPanel = "<img id='isReject' title='"+isReject+"' src='img/faq.png' style='float:left;margin-left:0px;width:16px;height:16px;'><button id='add-new-data-row-btn' type='button' onclick='addNewDataRow()' style='float: right; font-size:12px'>add new data & material</button>" + dataTable;
+        }
+    }
+
+
+    // Annotation table
+    annTable = "<table id='mp-claim-data-tb'>" +
+        "<tr><td style='width:310px;'>Claim</td><td>Material/Data <strong id='wait' style='display:none;'>Loading...</strong></td></tr>";
+    annTable += "<tr><td>" + claimPanel + "</td><td>" + dataPanel + "</td></tr>";
+    annTable += "</table>";
+
+    // update Annotation Table
+    $( "#mp-annotation-tb" ).html(annTable);
+
+    // update mpadder - claim menu
+    $( ".mp-sub-menu-2" ).html(claimMenu);
+
+    // update claim options in dialog
+    $( "#dialog-claim-options" ).html(dialogClaimListbox);
+
+    if (annotations == null || annotations.length <= 0) {
+        $('#edit-claim-btn').hide();
+        $('#view-claim-btn').hide();
+        $('#mp-editor-method').hide();
+        $('#add-new-data-row-btn').hide();
+        $('#mp-editor-claim-list').hide();
+    } else {
+        $('#edit-claim-btn').show();
+        $('#view-claim-btn').show();
+        $('#mp-editor-method').show();
+        $('#add-new-data-row-btn').show();
+        $('#mp-editor-claim-list').show();
+    }
+
+}
 
 // update annotation table by selected annotaionId
 // @input: list of mp annotaitons
 // @input: annotationId for selected claim
-function updateClaimAndData(annotations, annotationId) {
-
-    console.log("ann table updateClaimAndData");
-    // console.log(annotations);
+/*function updateClaimAndData(annotations, annotationId) {
 
     // claim menu for mpadder
     claimMenu = "";
@@ -94,10 +186,13 @@ function updateClaimAndData(annotations, annotationId) {
                 //if it is not rejected, show the data table
 
                 if (currAnnotation.argues.method == "Case Report") {
-                    dataTable = createDipsTable(annotation);
+                    dataTable = createDataTable(annotation);
+                    //dataTable = createDipsTable(annotation);
                 } else if (currAnnotation.argues.method == "Statement") {
-                    dataTable = createStatTable(annotation);
+                    //dataTable = createStatTable(annotation);
+                    dataTable = createDataTable(annotation);
                 } else if (currAnnotation.argues.method == "Experiment") {
+                    //dataTable = createDataTable(annotation);
                     dataTable = createExperimentTable(annotation);
                 } else {
                     dataTable = createDataTable(annotation); // create data table
@@ -176,7 +271,7 @@ function updateClaimAndData(annotations, annotationId) {
         $('#mp-editor-claim-list').show();
     }
 
-}
+}*/
 
 // append new row of data & material in annotation table
 function addNewDataRow() {
@@ -524,19 +619,12 @@ function createExperimentTable(annotation){
 }
 
 
-// @input: data list in MP annotation
-// @input: MP annotation Id
-// return: table html for multiple data & materials
+
 function createDataTable(annotation){
     var dataTable;
     drugname1 = annotation.argues.qualifiedBy.drug1;
     drugname2 = annotation.argues.qualifiedBy.drug2;
-    if (annotation.argues.qualifiedBy.relationship == "interact with") {
-        if (annotation.argues.qualifiedBy.precipitant == "drug1")
-            drugname1 += " (precipitant)";
-        else if (annotation.argues.qualifiedBy.precipitant == "drug2")
-            drugname2 += " (precipitant)";
-    }
+    
     if (annotation.rejected == undefined || annotation.rejected == null ) {
         dataTable = "<table style='color:green;'";
     } else {
@@ -576,25 +664,11 @@ function createDataTable(annotation){
                 row += "<td onclick='editDataCellByEditor(\"dose1\",\""+dataNum+"\");'>" + material.drug1Dose.value + "</td>";
             else
                 row += "<td onclick='addDataCellByEditor(\"dose1\",\""+dataNum+"\");'></td>";
+            if (material.drug2Dose.value != null)
+                row += "<td onclick='editDataCellByEditor(\"dose2\",\""+dataNum+"\");'>" + material.drug2Dose.value + "</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"dose2\",\""+dataNum+"\");'></td>";
 
-            if (drugname2 == "") {
-                console.log("drugname2");
-                console.log(drugname2);
-                if (material.phenotype.type != null) {
-                    row += "<td onclick='editDataCellByEditor(\"phenotype\",\""+dataNum+"\");'>" + material.phenotype.type + "</td>";
-                } else {
-                    row += "<td onclick='addDataCellByEditor(\"phenotype\",\""+dataNum+"\");'></td>";
-                }
-                $('#nav-dose2-btn').hide();
-                $('nav-phenotype-btn').show();
-            } else {
-                if (material.drug2Dose.value != null)
-                    row += "<td onclick='editDataCellByEditor(\"dose2\",\""+dataNum+"\");'>" + material.drug2Dose.value + "</td>";
-                else
-                    row += "<td onclick='addDataCellByEditor(\"dose2\",\""+dataNum+"\");'></td>";
-                $('#nav-dose2-btn').show();
-                $('nav-phenotype-btn').hide();
-            }
             // show mp data
             /*if (data.auc.value != null)
                 row += "<td onclick='editDataCellByEditor(\"auc\",\""+dataNum+"\");'>" + data.auc.value + "</td>";
@@ -650,6 +724,133 @@ function createDataTable(annotation){
     dataTable += "</table>";
     return dataTable;
 }
+
+// @input: data list in MP annotation
+// @input: MP annotation Id
+// return: table html for multiple data & materials
+/*function createDataTable(annotation){
+    var dataTable;
+    drugname1 = annotation.argues.qualifiedBy.drug1;
+    drugname2 = annotation.argues.qualifiedBy.drug2;
+    if (annotation.argues.qualifiedBy.relationship == "interact with") {
+        if (annotation.argues.qualifiedBy.precipitant == "drug1")
+            drugname1 += " (precipitant)";
+        else if (annotation.argues.qualifiedBy.precipitant == "drug2")
+            drugname2 += " (precipitant)";
+    }
+    if (annotation.rejected == undefined || annotation.rejected == null ) {
+        dataTable = "<table style='color:green;'";
+    } else {
+        dataTable = "<table style='color:red;'";
+    }
+    if (drugname2 == "") {
+        //dataTable += " id='mp-data-tb'><tr><td>Ev Relationship</td><td>No. of Participants</td><td><div>" + drugname1 + " Dose</div></td><td>Phenotype</td><td>AUC ratio</td><td>Cmax ratio</td><td>Clearance ratio</td><td>Half-life ratio</td><td>Evidence Type</td></tr>";
+        dataTable += " id='mp-data-tb'><tr><td>No. of Participants</td><td><div>" + drugname1 + " Dose</div></td><td>" + drugname2 + " Dose</td><td>Radiotherapy</td><td>Toxicity</td><td>Death/Withdrawal</td></tr>";
+    } else {
+        dataTable += " id='mp-data-tb'><tr><td>No. of Participants</td><td><div>" + drugname1 + " Dose</div></td><td>" + drugname2 + " Dose</td><td>Radiotherapy</td><td>Toxicity</td><td>Death/Withdrawal</td></tr>";
+    }
+
+    annotationId = annotation.id;
+    var dataL = annotation.argues.supportsBy;
+
+    if (dataL.length > 0){ // show all data items
+        for (var dataNum = 0; dataNum < dataL.length; dataNum++) {
+            var data = dataL[dataNum];
+            var method = data.supportsBy;
+            var material = data.supportsBy.supportsBy;
+            var row = "<tr style='height:20px;'>";
+            // evidence relationship
+            /*if (data.evRelationship != null) {
+                var tempRel = data.evRelationship == "refutes" ? "challenges" : "supports";
+                row += "<td onclick='editDataCellByEditor(\"evRelationship\",\""+dataNum+"\");'>" + tempRel + "</td>";
+            } else {
+                row += "<td onclick='addDataCellByEditor(\"evRelationship\",\""+dataNum+"\");'></td>";
+            }*/
+
+            // show mp material
+            /*if (material.participants.value != null)
+                row += "<td onclick='editDataCellByEditor(\"participants\",\""+dataNum+"\");'>" + material.participants.value + "</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"participants\",\""+dataNum+"\");'></td>";
+
+            if (material.drug1Dose.value != null)
+                row += "<td onclick='editDataCellByEditor(\"dose1\",\""+dataNum+"\");'>" + material.drug1Dose.value + "</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"dose1\",\""+dataNum+"\");'></td>";
+
+            if (drugname2 == "") {
+                console.log("drugname2");
+                console.log(drugname2);
+                if (material.phenotype.type != null) {
+                    row += "<td onclick='editDataCellByEditor(\"phenotype\",\""+dataNum+"\");'>" + material.phenotype.type + "</td>";
+                } else {
+                    row += "<td onclick='addDataCellByEditor(\"phenotype\",\""+dataNum+"\");'></td>";
+                }
+                $('#nav-dose2-btn').hide();
+                $('nav-phenotype-btn').show();
+            } else {
+                if (material.drug2Dose.value != null)
+                    row += "<td onclick='editDataCellByEditor(\"dose2\",\""+dataNum+"\");'>" + material.drug2Dose.value + "</td>";
+                else
+                    row += "<td onclick='addDataCellByEditor(\"dose2\",\""+dataNum+"\");'></td>";
+                $('#nav-dose2-btn').show();
+                $('nav-phenotype-btn').hide();
+            }
+            // show mp data
+            /*if (data.auc.value != null)
+                row += "<td onclick='editDataCellByEditor(\"auc\",\""+dataNum+"\");'>" + data.auc.value + "</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"auc\",\""+dataNum+"\");'></td>";
+
+            if (data.cmax.value != null)
+                row += "<td onclick='editDataCellByEditor(\"cmax\",\""+dataNum+"\");'>" + data.cmax.value + "</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"cmax\",\""+dataNum+"\");'></td>";
+
+            if (data.clearance.value != null)
+                row += "<td onclick='editDataCellByEditor(\"clearance\",\""+dataNum+"\");'>" + data.clearance.value + "</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"clearance\",\""+dataNum+"\");'></td>";
+
+            if (data.halflife.value != null)
+                row += "<td onclick='editDataCellByEditor(\"halflife\",\""+dataNum+"\");'>" + data.halflife.value + "</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"halflife\",\""+dataNum+"\");'></td>";
+
+            if (data.grouprandom != null || data.parallelgroup != null)
+                row += "<td onclick='editDataCellByEditor(\"studytype\",\""+dataNum+"\");'>checked</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"studytype\",\""+dataNum+"\");'></td>"; */
+
+            /*if (data.radiotherapy.r != null)
+                row += "<td onclick='editDataCellByEditor(\"radiotherapy\",\""+dataNum+"\");'>" + data.radiotherapy.r + "</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"radiotherapy\",\""+dataNum+"\");'></td>";
+
+            if (data.toxicity.toxicityCriteria != null)
+                row += "<td onclick='editDataCellByEditor(\"toxicity\",\""+dataNum+"\");'>" + data.toxicity.toxicityCriteria + "</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"toxicity\",\""+dataNum+"\");'></td>";
+
+            if (data.deathwithdrawal.deathFrequency != null)
+                row += "<td onclick='editDataCellByEditor(\"deathwithdrawal\",\""+dataNum+"\");'>" + data.deathwithdrawal.deathFrequency + "</td>";
+            else
+                row += "<td onclick='addDataCellByEditor(\"deathwithdrawal\",\""+dataNum+"\");'></td>";
+
+            row += "</tr>";
+            dataTable += row;
+        }
+    } else { // add empty row
+        if (drugname2 == "") {
+            //dataTable += "<tr style='height:20px;'><td onclick='addDataCellByEditor(\"evRelationship\",0);'></td><td onclick='addDataCellByEditor(\"participants\",0);'></td><td onclick='addDataCellByEditor(\"dose1\",0);'> </td><td onclick='addDataCellByEditor(\"phenotype\",0);'></td><td onclick='addDataCellByEditor(\"auc\",0);'></td><td onclick='addDataCellByEditor(\"cmax\",0);'></td><td onclick='addDataCellByEditor(\"clearance\",0);'></td><td onclick='addDataCellByEditor(\"halflife\",0);'></td><td onclick='addDataCellByEditor(\"studytype\",0);'></td>";
+            dataTable += "<tr style='height:20px;'><td onclick='addDataCellByEditor(\"participants\",0);'></td><td onclick='addDataCellByEditor(\"dose1\",0);'> </td><td onclick='addDataCellByEditor(\"dose2\",0);'></td><td onclick='addDataCellByEditor(\"radiotherapy\",0);'></td><td onclick='addDataCellByEditor(\"toxicity\",0);'></td><td onclick='addDataCellByEditor(\"deathwithdrawal\",0);'></td>";
+        } else {
+            //dataTable += "<tr style='height:20px;'><td onclick='addDataCellByEditor(\"evRelationship\",0);'></td><td onclick='addDataCellByEditor(\"participants\",0);'></td><td onclick='addDataCellByEditor(\"dose1\",0);'> </td><td onclick='addDataCellByEditor(\"dose2\",0);'></td><td onclick='addDataCellByEditor(\"auc\",0);'></td><td onclick='addDataCellByEditor(\"cmax\",0);'></td><td onclick='addDataCellByEditor(\"clearance\",0);'></td><td onclick='addDataCellByEditor(\"halflife\",0);'></td><td onclick='addDataCellByEditor(\"studytype\",0);'></td>";
+            dataTable += "<tr style='height:20px;'><td onclick='addDataCellByEditor(\"participants\",0);'></td><td onclick='addDataCellByEditor(\"dose1\",0);'> </td><td onclick='addDataCellByEditor(\"dose2\",0);'></td><td onclick='addDataCellByEditor(\"radiotherapy\",0);'></td><td onclick='addDataCellByEditor(\"toxicity\",0);'></td><td onclick='addDataCellByEditor(\"deathwithdrawal\",0);'></td>";
+    }   }
+    dataTable += "</table>";
+    return dataTable;
+}*/
 
 function createStatTable(annotation) {
     negation = annotation.argues.negation;

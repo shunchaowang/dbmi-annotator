@@ -6,10 +6,10 @@ function claimEditorLoad() {
     $('#quote').show();
     $("#claim-label-data-editor").hide();
     $(".annotator-save").hide();
-    $("#mp-data-nav").hide();
-    $("#mp-dips-nav").hide();
-    $("#mp-experiment-nav").hide();
-    $("#mp-data-form-evRelationship").hide();
+    //$("#mp-data-nav").hide();
+    //$("#mp-dips-nav").hide();
+    //$("#mp-experiment-nav").hide();
+    //$("#mp-data-form-evRelationship").hide();
     $("#mp-data-form-participants").hide();
     $("#mp-data-form-dose1").hide();
     $("#mp-data-form-dose2").hide();
@@ -51,16 +51,48 @@ function editClaim() {
 
 // when method is phenotype and relationship is inhibits or substrate of
 function changeCausedbyMethod() {
+    $("#relationship option[value = 'Toxicity']").removeAttr('disabled');
+    $("#relationship option[value = 'Toxicity']").show();
     $("#relationship option[value = 'interact with']").removeAttr('disabled');
     $("#relationship option[value = 'interact with']").show();
     $("#relationship option[value = 'inhibits']").removeAttr('disabled');
     $("#relationship option[value = 'inhibits']").show();
     $("#relationship option[value = 'substrate of']").removeAttr('disabled');
     $("#relationship option[value = 'substrate of']").show();
+    $("#relationship option[value = 'has metabolite']").removeAttr('disabled');
+    $("#relationship option[value = 'has metabolite']").show();
+    $("#relationship option[value = 'controls formation of']").removeAttr('disabled');
+    $("#relationship option[value = 'controls formation of']").show();
+    $("#relationship option[value = 'inhibition constant']").removeAttr('disabled');
+    $("#relationship option[value = 'inhibition constant']").show();
+
+    var selectR = $("#relationship option:selected").text();
+    var methodValue = $("#method option:selected").text();
+
+    if (methodValue == "DDI clinical trial" || methodValue == "Phenotype clinical study" || methodValue == "Case Report" || methodValue == "Statement" || methodValue == "Experiment") {
+        if (selectR == "Toxicity"|| selectR == "interact with" || selectR == "inhibits" || selectR == "substrate of" || selectR == "has metabolite" || selectR == "controls formation of" || selectR == "inhibition constant") {
+            $("#relationship option:selected").prop("selected", true);
+        }
+
+    }
+
+    selectDrug();
+}
+
+// when method is phenotype and relationship is inhibits or substrate of
+/*function changeCausedbyMethod() {
+    $("#relationship option[value = 'interact with']").removeAttr('disabled');
+    $("#relationship option[value = 'interact with']").show();
+    $("#relationship option[value = 'inhibits']").removeAttr('disabled');
+    $("#relationship option[value = 'inhibits']").show();
+    $("#relationship option[value = 'substrate of']").removeAttr('disabled');
+    $("#relationship option[value = 'substrate of']").show();
+    $("#relationship option[value = 'inhibition constant']").removeAttr('disabled');
+    $("#relationship option[value = 'inhibition constant']").show();
     $('#object-metabolite').parent().hide();
     $('#object-metabolite-label').parent().hide();
     var selectR = $("#relationship option:selected").text();
-    if (selectR == "has metabolite" || selectR == "controls formation of" || selectR == "inhibition constant") {
+    if (selectR == "has metabolite" || selectR == "controls formation of") {
         $("#relationship option:selected").prop("selected", false);
         $("#relationship option[value='interact with']").prop("selected", true);
     }
@@ -140,7 +172,7 @@ function changeCausedbyMethod() {
     }
     showEnzyme();
     selectDrug();
-}
+}*/
 
 // when reviewer is author
 function showLackQuestionInfo() {
@@ -190,7 +222,7 @@ function showPhenotypeType() {
 }
 
 // when relationship is inhibits or substrate of, show field enzyme
-function showEnzyme() {
+/*function showEnzyme() {
 
     if($("#relationship option:selected").text() == "inhibits"||$("#relationship option:selected").text()=="substrate of") {
         if ($("#method option:selected").text() == "Phenotype clinical study" || $("#method option:selected").text() == "Statement") {
@@ -243,7 +275,7 @@ function showEnzyme() {
         $('input[type=radio][name=precipitant]').parent().show();
         $('.precipitantLabel').parent().show();
     }
-}
+}*/
 
 
 // modify annotaiton id when user pick claim on mpadder's menu
@@ -258,12 +290,153 @@ function claimSelectedInMenu(annotationId) {
     }
 }
 
+
+function addDataCellByEditor(field, dataNum, isNewData) {
+
+    
+    $("#button#drug1-dose-switch-btn").focus();
+
+    var annotationId = $('#mp-editor-claim-list option:selected').val();
+    console.log("addDataCellByEditor - id: " + annotationId + " | data: " + dataNum + " | field: " + field);
+
+    $("#claim-label-data-editor").show();
+    //fields whitch don't need text selected
+    var selectedTextNotNeed = ["evRelationship", "studytype", "reviewer", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10"];
+
+    // return if no text selection 
+    if (!isTextSelected && !selectedTextNotNeed.includes(field)) {
+        warnSelectTextSpan(field);
+    } else {
+        $("#mp-data-nav").hide();
+        // hide data fields navigation if editing evidence relationship 
+        if (field == "evRelationship" || field =="studytype") {
+            $("#mp-data-nav").hide();
+            $(".annotator-save").hide();
+        } else if (field == "radiotherapy" || field == "toxicity" || field == "deathwithdrawal") { // when field is checkbox
+            $("#mp-data-nav").show();
+            $(".annotator-save").show(); 
+        } else if (currAnnotation.argues.method == "DDI clinical trial" || currAnnotation.argues.method == "Phenotype clinical study" || currAnnotation.argues.method == "Case Report" || currAnnotation.argues.method == "Statement" || currAnnotation.argues.method == "Experiment") { // when field is text input
+            $("#mp-data-nav").show();
+            $(".annotator-save").show(); 
+        } else {
+            $("#mp-data-nav").show();
+            $(".annotator-save").show(); 
+        }
+
+        // cached editing data cell
+        currAnnotationId = annotationId;
+        currDataNum = dataNum;
+        currFormType = field;
+
+        showEditor();
+        if (cachedOATarget.hasSelector != null)
+            $("#" + field + "quote").html(cachedOATarget.hasSelector.exact);
+        $("#annotator-delete").hide();
+        
+        // updating current MP annotation
+        if (annotationId != null)
+            currAnnotationId = annotationId;     
+
+        preDataForm(field);
+
+        $.ajax({url: config.protocal + "://" + config.apache2.host + "/annotatorstore/annotations/" + annotationId,
+                data: {},
+                method: 'GET',
+                error : function(jqXHR, exception){
+                    console.log(exception);
+                },
+                success : function(annotation){
+                    // add data if not avaliable  
+                    if (annotation.argues.supportsBy.length == 0 || isNewData){ 
+
+                        //var data = {type : "mp:data", evRelationship: "", auc : {}, cmax : {}, clearance : {}, halflife : {}, reviewer: {}, dips: {}, cellSystem: {}, metaboliteRateWith: {}, metaboliteRateWithout: {}, measurement: {}, supportsBy : {type : "mp:method", supportsBy : {type : "mp:material", participants : {}, drug1Dose : {}, drug2Dose : {}, phenotype: {}}}, grouprandom: "", parallelgroup: ""};
+                        //annotation.argues.supportsBy.push(data); 
+                        var data = {type : "mp:data", toxicity : {}, deathwithdrawal : {}, radiotherapy : {},  supportsBy : {type : "mp:method", supportsBy : {type : "mp:material", participants : {}, drug1Dose : {}, drug2Dose: {}}}};
+                        annotation.argues.supportsBy.push(data);
+                    } 
+                    
+                    // call AnnotatorJs editor for update    
+                    app.annotations.update(annotation);
+  
+                }                 
+               });
+        }
+}
+              
+        
+// called when click annotation table cell when value of cell is not null
+// (1) scroll to the annotation upon document
+// (2) load annotation to editor, then shown specific data form
+function editDataCellByEditor(field, dataNum) {
+
+    showEditor();
+    $("#claim-label-data-editor").show();
+    $('#quote').hide();
+    $("#mp-data-nav").hide();
+    // hide data fields navigation if editing evidence relationship 
+    if (field == "evRelationship" || field =="studytype") {
+        $("#mp-data-nav").hide();
+        $(".annotator-save").hide();
+    } else if (field == "radiotherapy" || field == "toxicity" || field == "deathwithdrawal") { // when field is checkbox
+        $("#mp-data-nav").show();
+        $(".annotator-save").show(); 
+    } else if (currAnnotation.argues.method == "DDI clinical trial" || currAnnotation.argues.method == "Phenotype clinical study" || currAnnotation.argues.method == "Case Report" || currAnnotation.argues.method == "Statement" || currAnnotation.argues.method == "Experiment") { // when field is text input
+        $("#mp-data-nav").show();
+        $(".annotator-save").show(); 
+    } else {
+        $("#mp-data-nav").show();
+        $(".annotator-save").show(); 
+    }
+
+
+    var annotationId = $('#mp-editor-claim-list option:selected').val();
+    console.log("editDataCellByEditor - id: " + annotationId + " | data: " + dataNum + " | field: " + field);
+    
+    // cached editing data cell
+    currAnnotationId = annotationId;
+    currDataNum = dataNum;
+    currFormType = field;
+
+    // scroll to the position of annotation
+    scrollToAnnotation(annotationId, field, dataNum);
+        
+    $.ajax({url: config.protocal + "://" + config.apache2.host + "/annotatorstore/annotations/" + annotationId,
+            data: {},
+            method: 'GET',
+            error : function(jqXHR, exception){
+                console.log(exception);
+            },
+            success : function(annotation){
+                
+                // updating current MP annotation
+                if (annotationId != null)
+                    currAnnotationId = annotationId;
+                
+                //switchDataForm(field, true);
+                preDataForm(field, true);
+
+                // show delete button
+                data = annotation.argues.supportsBy[dataNum];
+                material = data.supportsBy.supportsBy;
+                
+                //if ((field == "participants" && material.participants.value != null) || (field == "dose1" && material.drug1Dose.value != null) || (field == "dose2" && material.drug2Dose.value != null) || ((field == "auc" || field == "cmax" || field == "clearance" || field == "halflife") && (data[field].value != null)) || 
+                    //field == "rateWithout" || field == "rateWith" || field == "cellSystem" || field == "cl" || field == "vmax" || field == "km" || field == "ki" || field == "inhibition" || field == "kinact" || field == "ic50")
+                    //$("#annotator-delete").show();
+                if ((field == "participants" && material.participants.value != null) || (field == "dose1" && material.drug1Dose.value != null) || (field == "dose2" && material.drug2Dose.value != null) || ((field == "radiotherapy" || field == "toxicity" || field == "deathwithdrawal") && (data[field].value != null)))
+                    $("#annotator-delete").show();
+                
+                // call AnnotatorJs editor for update    
+                app.annotations.update(annotation);   
+            }
+           });               
+}
+
 // MP DATA & MATERIAL ========================================================================
 // called when click annotation table cell when value of cell is empty
 // (1) if no text selection avaliable, then pop up warning message then return 
 // to mp annotation table
 // (2) otherwise, load annotation to editor, then shown specific data form
-function addDataCellByEditor(field, dataNum, isNewData) {
+/*function addDataCellByEditor(field, dataNum, isNewData) {
 
     
     $("#button#drug1-dose-switch-btn").focus();
@@ -445,7 +618,7 @@ function editDataCellByEditor(field, dataNum) {
             }
            });               
 }
-
+*/
 // warning dialog for opening data editor
 function preDataForm(targetField, isNotNeedValid) {
     $("#mp-claim-form").hide();
@@ -502,8 +675,53 @@ function switchDataForm(targetField, isNotNeedValid) {
     }
 }
 
-// when switch data field, show or hide delete button, nav buttons and data forms 
+
 function switchDataFormHelper(targetField) {
+
+    // field actual div id mapping
+    //fieldM = {"reviewer":"reviewer", "evRelationship":"evRelationship", "participants":"participants", "dose1":"drug1Dose", "dose2":"drug2Dose", "phenotype":"phenotype", "auc":"auc", "cmax":"cmax", "clearance":"clearance", "halflife":"halflife", "studytype":"studytype",
+    //"q1":"q1", "q2":"q2", "q3":"q3", "q4":"q4", "q5":"q5", "q6":"q6", "q7":"q7", "q8":"q8", "q9":"q9", "q10":"q10"};
+    fieldM = {"participants":"participants", "dose1":"drug1Dose", "dose2":"drug2Dose", "radiotherapy":"radiotherapy", "toxicity":"toxicity", "deathwithdrawal":"deathwithdrawal"};
+
+    var showDeleteBtn = false;
+
+    for (var field in fieldM) {       
+        var dataid = "mp-data-form-"+field;
+        if (field === targetField) {
+            $("#"+dataid).show();  // show specific data form 
+            // inspect that is target form has value filled 
+
+            if (field == "evRelationship" || field =="studytype") { // when field is radio button
+                fieldVal = $("input[name="+field+"]:checked").val();
+            } else if (field == "radiotherapy" || field == "toxicity" || field == "deathwithdrawal") { // when field is checkbox
+                $("#mp-data-nav").show();
+                $("#mp-dips-nav").hide();                  
+                fieldVal = $("#" + fieldM[field]).val();
+            } else if (currAnnotation.argues.method == "DDI clinical trial" || currAnnotation.argues.method == "Phenotype clinical study" || currAnnotation.argues.method == "Case Report" || currAnnotation.argues.method == "Statement" || currAnnotation.argues.method == "Experiment") { // when field is text input
+            // when field is text input
+                $("#mp-data-nav").show();
+                fieldVal = $("#" + fieldM[field]).val();
+            } else {
+                $("#mp-data-nav").show();
+                $("#mp-dips-nav").hide();
+                fieldVal = $("#" + fieldM[field]).val();
+            }
+
+            if (fieldVal !=null && fieldVal != "")
+                $("#annotator-delete").show();
+            else if (showDeleteBtn)
+                $("#annotator-delete").show();
+            else 
+                $("#annotator-delete").hide();
+            focusOnDataField(targetField);
+        }  else {
+            cleanFocusOnDataField(field);
+            $("#"+dataid).hide();
+        }                           
+    }
+}
+// when switch data field, show or hide delete button, nav buttons and data forms 
+/*function switchDataFormHelper(targetField) {
 
     // field actual div id mapping
     //fieldM = {"reviewer":"reviewer", "evRelationship":"evRelationship", "participants":"participants", "dose1":"drug1Dose", "dose2":"drug2Dose", "phenotype":"phenotype", "auc":"auc", "cmax":"cmax", "clearance":"clearance", "halflife":"halflife", "studytype":"studytype",
@@ -549,7 +767,7 @@ function switchDataFormHelper(targetField) {
         }                           
     }
 }
-
+*/
 
 // scroll current focus on window to specific highlight piece
 function scrollToAnnotation(annotationId, fieldName, dataNum) {
