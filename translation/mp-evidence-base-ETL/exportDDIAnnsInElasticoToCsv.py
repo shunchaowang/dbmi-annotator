@@ -20,7 +20,7 @@ import sys
 import validate as test
 import codecs
 
-from elastic import queryDictAnnotation as es
+from elastic import queryDDIDictAnnotation as es
 
 reload(sys)  
 sys.setdefaultencoding('utf8')
