@@ -52,7 +52,7 @@ def run():
 
 	qryCondition = {"query": {"bool": 
 	 	{"must": [
-	 		{"term": {"rawurl": "http://localhost/DDI-labels/75bf3473-2d70-4d41-93cd-afa1015e45bb.html"}},
+	 		#{"term": {"rawurl": "http://localhost/PMC/PMC4530811.html"}},
 	 		{"term": {"annotationType": "DDI"}}
 	 	]
 	  }}}
