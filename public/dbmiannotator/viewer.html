@@ -29,7 +29,7 @@ See https://github.com/adobe-type-tools/cmap-resources
 
     <link rel="stylesheet" href="css/viewer.css"/>
     <!-- bring pdf annotation highlights css style  -->
-    <link rel="stylesheet" href="css/dbmi.pdf.highlight.css"/>
+    <link rel="stylesheet" href="css/dbmi.pdf.highlight.css" type="text/css"/>
     <link rel="stylesheet" href="./css/dbmiannotator.css" type="text/css" />
     
 
@@ -51,6 +51,7 @@ See https://github.com/adobe-type-tools/cmap-resources
   </head>
 
   <body tabindex="1" class="loadingInProgress">
+<div id="annotationtype-div" style="display: none;">DDI</div>
     
     
       <!-- dialog for selecting text to begin with create claim/data -->
@@ -593,7 +594,7 @@ See https://github.com/adobe-type-tools/cmap-resources
 <script type="text/javascript" src="js/mp-menu.js"></script>
 
 <!-- bring ddi plugin js for pdf -->
-<!-- <script src="js/ddi-plugin-pdf.js"></script> -->
+<!--script src="js/ddi-plugin-pdf.js"></script-->
 
 <!-- DrugMention and MP annotation highlight color definition in PDF (it's darker than in HTML, overrides style for html) --> 
 <style>
