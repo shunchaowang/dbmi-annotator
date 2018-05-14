@@ -5,7 +5,7 @@ if (typeof annotator === 'undefined') {
 } else {
     // DBMIAnnotator with highlight and DDI plugin
     var app = new annotator.App();
-    var annotationType = $("#annotationtype-div").text();    
+    var annotationType = $("#annotationtype-div").text();   
 
     console.log("[INFO] init annotator.js - plugin: " + annotationType);
 
@@ -651,8 +651,8 @@ function importAnnotationActions(userEmails, allMPAnnsD, uri, email) {
         
         //PDF
         unsaved = false;
-/* PDF VERSION
-        unsaved = false;
+/*PDF VERSION */
+        //unsaved = false;
         if (sourceURL.match(/localhost.*html/g)) {
             userEmails.forEach(function(email) { // draw all annotaitons by email
         		app.annotations.load({uri: uri, email: email});
@@ -660,11 +660,12 @@ function importAnnotationActions(userEmails, allMPAnnsD, uri, email) {
             });
         }
         userEmails.forEach(function(email) { 
-            selectedMPAnnsL = selectedMPAnnsL.concat(allMPAnnsD[email]);
-*/
+            //selectedMPAnnsL = selectedMPAnnsL.concat(allMPAnnsD[email]);
+
+
         
-        userEmails.forEach(function(email) { // draw all annotaitons by email
-		    app.annotations.load({uri: uri, email: email});
+        //userEmails.forEach(function(email) { // draw all annotaitons by email
+		    //app.annotations.load({uri: uri, email: email});
 
             // console.log("[DEBUG] anns by email: " + email);
             // console.log(allMPAnnsD[email]);
@@ -674,7 +675,7 @@ function importAnnotationActions(userEmails, allMPAnnsD, uri, email) {
         });
         initAnnTable(selectedMPAnnsL); // update annotation table
         importDialog.style.display = "none"; // hide panel        
-    }	
+    }
 
     cancelBtn.onclick = function() { // only load current user's annotation
         
